@@ -620,7 +620,7 @@
 
 <!-- Header -->
 <header>
-  <div class="logo">AUR<span>UM</span></div>
+  <div class="logo">KAMIL <span>STUDIO</span></div>
   <nav>
     <a href="#player">Music</a>
     <a href="#gallery">Gallery</a>
@@ -773,7 +773,7 @@
     <div class="section-label">The Ethos</div>
     <h2>Built for <em>Refinement</em></h2>
     <p class="about-text">
-      AURUM is a personal space designed for the man who values <strong>quality over quantity</strong>, 
+      KAMIL STUDIO is a personal space designed for the man who values <strong>quality over quantity</strong>, 
       atmosphere over noise. Every element — the gold that traces each border, the restrained typography, 
       the deliberate silence between notes — is intentional.
     </p>
@@ -789,7 +789,7 @@
 
 <!-- Footer -->
 <footer>
-  <div class="footer-logo">AURUM</div>
+  <div class="footer-logo">KAMIL STUDIO</div>
   <div class="footer-copy">© 2025 — Personal Space</div>
   <div class="footer-links">
     <a href="https://github.com" target="_blank">GitHub</a>
@@ -999,7 +999,30 @@ renderGallery();
 
 // ── AUTO INIT PLAYLIST ────────────────────────────────────────────────────────
 renderPlaylist();
+// Autoplay: browser butuh interaksi user, jadi kita coba play saat halaman dimuat
+// Kalau browser blokir, track tetap ter-load dan siap saat user klik
+audio.muted = true;
 loadTrack(0);
+const tryAutoplay = () => {
+  audio.play().then(() => {
+    // Berhasil autoplay (muted), lalu unmute pelan-pelan
+    setTimeout(() => { audio.muted = false; }, 500);
+    isPlaying = true;
+    document.getElementById('playBtn').textContent = '⏸';
+    document.getElementById('playerVisual').classList.add('playing');
+  }).catch(() => {
+    // Browser blokir autoplay — tunggu interaksi user pertama
+    audio.muted = false;
+    const unlock = () => {
+      playTrack(0);
+      document.removeEventListener('click', unlock);
+      document.removeEventListener('keydown', unlock);
+    };
+    document.addEventListener('click', unlock);
+    document.addEventListener('keydown', unlock);
+  });
+};
+tryAutoplay();
 document.getElementById('statTracks').textContent = tracks.length;
 // Sembunyikan upload zone karena track sudah hardcoded
 document.getElementById('uploadZone').style.display = 'none';
