@@ -833,7 +833,7 @@ const audio = new Audio();
 // Contoh: kalau nama file kamu 'lagu.mp3', tulis './audio/lagu.mp3'
 // Mau lebih dari 1 lagu? Tambah baris baru di bawah, ikuti format yang sama.
 let tracks = [
-  { name: 'Lagu 1', ext: 'MP3', url: './audio/lagu1.mp3' },
+  { name: 'The Winner Takes It All - From Mamma Mia!', ext: 'MP3', url: './audio/The Winner Takes It All - From Mamma Mia!.mp3' },
   // { name: 'Lagu 2', ext: 'MP3', url: './audio/lagu2.mp3' }, // hapus // untuk aktifkan
 ];
 let current = -1;
@@ -852,7 +852,7 @@ const volSlider = document.getElementById('volSlider');
 const playlistItems = document.getElementById('playlistItems');
 const playerVisual = document.getElementById('playerVisual');
 
-audio.volume = 0.8;
+audio.volume = 1;
 
 function formatTime(s) {
   if (isNaN(s)) return '0:00';
