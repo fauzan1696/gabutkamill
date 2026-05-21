@@ -372,7 +372,7 @@
   }
 
   /* Controls */
-  .controls-row {
+  .controls-row { display: none !important; } .controls-row-DISABLED {
     display: flex; align-items: center; justify-content: center;
     gap: 24px; margin-bottom: 32px;
   }
@@ -708,14 +708,6 @@
           <span id="totalTime">0:00</span>
         </div>
       </div>
-
-      <!-- Controls -->
-      <div class="controls-row">
-        <button class="ctrl-btn" id="prevBtn" title="Previous">⏮</button>
-        <button class="ctrl-btn play-btn" id="playBtn">▶</button>
-        <button class="ctrl-btn" id="nextBtn" title="Next">⏭</button>
-      </div>
-
       <!-- Volume -->
       <div class="volume-row">
         <span class="vol-icon">♪</span>
@@ -873,7 +865,6 @@ function playTrack(idx) {
   loadTrack(idx);
   audio.play();
   isPlaying = true;
-  playBtn.textContent = '⏸';
   playerVisual.classList.add('playing');
 }
 
@@ -891,138 +882,28 @@ document.getElementById('audioInput').addEventListener('change', function() {
     tracks.push({ name: f.name.replace(/\.[^.]+$/, ''), ext, url: URL.createObjectURL(f), file: f });
   });
   renderPlaylist();
-  if (current === -1 && tracks.length > 0) loadTrack(0);
-  document.getElementById('statTracks').textContent = tracks.length;
-});
-
-// Drag and drop on upload zone
-const uploadZone = document.getElementById('uploadZone');
-uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
-uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
-uploadZone.addEventListener('drop', e => {
-  e.preventDefault(); uploadZone.classList.remove('dragover');
-  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('audio/'));
-  files.forEach(f => {
-    const ext = f.name.split('.').pop().toUpperCase();
-    tracks.push({ name: f.name.replace(/\.[^.]+$/, ''), ext, url: URL.createObjectURL(f) });
-  });
-  renderPlaylist();
-  if (current === -1 && tracks.length > 0) loadTrack(0);
-  document.getElementById('statTracks').textContent = tracks.length;
-});
-
-function renderPlaylist() {
-  if (tracks.length === 0) { playlistItems.innerHTML = '<div style="color:var(--muted);font-size:12px;font-style:italic;">No tracks yet...</div>'; return; }
-  playlistItems.innerHTML = tracks.map((t, i) => `
-    <div class="playlist-item ${i === current ? 'active' : ''}" data-idx="${i}" onclick="playTrack(${i})">
-      <span class="pi-name">${t.name}</span>
-      <span class="pi-dur">${t.ext}</span>
-    </div>
-  `).join('');
-}
-
-playBtn.addEventListener('click', () => {
-  if (tracks.length === 0) return;
-  if (current === -1) { playTrack(0); return; }
-  if (isPlaying) {
-    audio.pause(); isPlaying = false;
-    playBtn.textContent = '▶';
-    playerVisual.classList.remove('playing');
-  } else {
-    audio.play(); isPlaying = true;
-    playBtn.textContent = '⏸';
-    playerVisual.classList.add('playing');
-  }
-});
-prevBtn.addEventListener('click', () => {
-  if (tracks.length === 0) return;
-  const idx = current <= 0 ? tracks.length - 1 : current - 1;
-  playTrack(idx);
-});
-nextBtn.addEventListener('click', () => {
-  if (tracks.length === 0) return;
-  const idx = (current + 1) % tracks.length;
-  playTrack(idx);
-});
-audio.addEventListener('ended', () => {
-  const idx = (current + 1) % tracks.length;
-  playTrack(idx);
-});
-audio.addEventListener('timeupdate', () => {
-  if (!audio.duration) return;
-  const pct = (audio.currentTime / audio.duration) * 100;
-  progressFill.style.width = pct + '%';
-  currentTimeEl.textContent = formatTime(audio.currentTime);
-  totalTimeEl.textContent = formatTime(audio.duration);
-  // update waveform
-  const activeIdx = Math.floor(pct / 100 * BAR_COUNT);
-  bars.forEach((b, i) => {
-    b.classList.remove('active', 'past');
-    if (i === activeIdx) b.classList.add('active');
-    else if (i < activeIdx) b.classList.add('past');
-  });
-});
-progressBar.addEventListener('click', e => {
-  if (!audio.duration) return;
-  const rect = progressBar.getBoundingClientRect();
-  audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
-});
-volSlider.addEventListener('input', () => { audio.volume = volSlider.value; });
-
-// ── GALLERY ─────────────────────────────────────────────────────────────────
-// ✅ GALLERY HARDCODED — taruh file gambar di folder 'images/' di GitHub
-// Ganti nama file sesuai file yang kamu upload. Hapus // untuk aktifkan slot.
-const galleryImages = [
-  { url: './images/gallery1.jpg', name: 'Moment I'   },
-  { url: './images/gallery2.jpg', name: 'Moment II'  },
-  { url: './images/gallery3.jpg', name: 'Moment III' },
-  // { url: './images/gallery4.jpg', name: 'Moment IV'  },
-  // { url: './images/gallery5.jpg', name: 'Moment V'   },
-  // { url: './images/gallery6.jpg', name: 'Moment VI'  },
-];
-const galleryGrid = document.getElementById('galleryGrid');
-
-function renderGallery() {
-  galleryGrid.innerHTML = '';
-  galleryImages.forEach((img, i) => {
-    const cell = document.createElement('div');
-    cell.className = 'gallery-cell';
-    cell.innerHTML = `
-      <img src="${img.url}" alt="${img.name}" onload="this.classList.add('loaded')" onerror="this.parentElement.style.opacity='0.3'">
-      <div class="gallery-overlay"><span class="gallery-label">${img.name}</span></div>
-    `;
-    galleryGrid.appendChild(cell);
-  });
-  document.getElementById('statImages').textContent = galleryImages.length;
-}
-renderGallery();
-
-// ── AUTO INIT PLAYLIST ────────────────────────────────────────────────────────
-renderPlaylist();
-// Autoplay: browser butuh interaksi user, jadi kita coba play saat halaman dimuat
-// Kalau browser blokir, track tetap ter-load dan siap saat user klik
-audio.muted = true;
+// AUTOPLAY — langsung play tanpa tombol
 loadTrack(0);
 const tryAutoplay = () => {
+  audio.muted = false;
   audio.play().then(() => {
-    // Berhasil autoplay (muted), lalu unmute pelan-pelan
-    setTimeout(() => { audio.muted = false; }, 500);
     isPlaying = true;
-    document.getElementById('playBtn').textContent = '⏸';
     document.getElementById('playerVisual').classList.add('playing');
   }).catch(() => {
-    // Browser blokir autoplay — tunggu interaksi user pertama
-    audio.muted = false;
+    // Browser blokir — play otomatis saat user pertama sentuh/klik halaman
     const unlock = () => {
-      playTrack(0);
+      audio.play().then(() => {
+        isPlaying = true;
+        document.getElementById('playerVisual').classList.add('playing');
+      });
       document.removeEventListener('click', unlock);
-      document.removeEventListener('keydown', unlock);
+      document.removeEventListener('touchstart', unlock);
     };
-    document.addEventListener('click', unlock);
-    document.addEventListener('keydown', unlock);
+    document.addEventListener('click', unlock, { once: true });
+    document.addEventListener('touchstart', unlock, { once: true });
   });
 };
-tryAutoplay();
+setTimeout(tryAutoplay, 800);
 document.getElementById('statTracks').textContent = tracks.length;
 // Sembunyikan upload zone karena track sudah hardcoded
 document.getElementById('uploadZone').style.display = 'none';
